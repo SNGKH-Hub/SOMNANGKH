@@ -11,3 +11,18 @@ local Tab = Window:Tab({
     Icon = "bird", -- optional
     Locked = false,
 })
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+Tab:Toggle({
+    Title = "Speed Boost",
+    Desc = "WalkSpeed 16 → 75",
+    Value = false,
+    Callback = function(state)
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:WaitForChild("Humanoid")
+
+        hum.WalkSpeed = state and 75 or 16
+    end
+})
