@@ -115,3 +115,23 @@ local Toggle = Tab:Toggle({
         end
     end
 })
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local Button = Tab:Button({
+    Title = "Reset Character",
+    Color = Color3.fromHex("#a2ff30"), -- green button
+    Justify = "Center",
+    IconAlign = "Left",
+    Icon = "", -- no icon
+    Callback = function()
+        local Character = Player.Character
+        if Character then
+            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+            if Humanoid then
+                Humanoid.Health = 0 -- reset character
+            end
+        end
+    end
+})
