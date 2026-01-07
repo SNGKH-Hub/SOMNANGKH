@@ -26,3 +26,24 @@ Tab:Toggle({
         hum.WalkSpeed = state and 75 or 16
     end
 })
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Slider = Tab:Slider({
+    Title = "Jump Boost",
+    Desc = "Adjust your jump power",
+    Step = 50, -- smoother control
+    Value = {
+        Min = 50,
+        Max = 10000,
+        Default = 50,
+    },
+    Callback = function(value)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = value
+        end
+    end
+})
