@@ -47,3 +47,71 @@ local Slider = Tab:Slider({
         end
     end
 })
+
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Player
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+-- Settings
+local Enabled = false
+local TweenSpeed = 75 -- increase = faster
+local TapConnection
+
+-- Tween Function
+local function TweenTo(pos)
+    local Char = Player.Character
+    if not Char then return end
+
+    local HRP = Char:FindFirstChild("HumanoidRootPart")
+    if not HRP then return end
+
+    local dist = (HRP.Position - pos).Magnitude
+    local time = dist / TweenSpeed
+
+    TweenService:Create(
+        HRP,
+        TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))}
+    ):Play()
+end
+
+-- Enable / Disable Tap
+local function EnableTap()
+    TapConnection = UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe or not Enabled then return end
+
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            TweenTo(Mouse.Hit.Position)
+        end
+    end)
+end
+
+local function DisableTap()
+    if TapConnection then
+        TapConnection:Disconnect()
+        TapConnection = nil
+    end
+end
+
+-- WindUI Toggle
+local Toggle = Tab:Toggle({
+    Title = "Tap Tween TP",
+    Desc = "Tap anywhere to move smoothly",
+    Icon = "move",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        Enabled = state
+        if state then
+            EnableTap()
+        else
+            DisableTap()
+        end
+    end
+})
