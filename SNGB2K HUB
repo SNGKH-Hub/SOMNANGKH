@@ -204,7 +204,7 @@ local ToggleTab = ElementsSection:Tab({
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-ToggleTab:Toggle({
+SliderTab:Slider({
         Title = "WalkSpeed",
     Desc = "Change your movement speed",
     Step = 1,
