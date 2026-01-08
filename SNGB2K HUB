@@ -208,6 +208,28 @@ local AboutSection = AboutTab:Section({
         Radius = 9,
     })
 
+AboutSection:Space({ Columns = 3 })
+    
+    AboutSection:Section({
+        Title = "What is WindUI?",
+        TextSize = 24,
+        FontWeight = Enum.FontWeight.SemiBold,
+    })
+
+    AboutSection:Space()
+    
+    AboutSection:Section({
+        Title = [[WindUI is a stylish, open-source UI (User Interface) library specifically designed for Roblox Script Hubs.
+Developed by Footagesus (.ftgs, Footages).
+It aims to provide developers with a modern, customizable, and easy-to-use toolkit for creating visually appealing interfaces within Roblox.
+The project is primarily written in Lua (Luau), the scripting language used in Roblox.]],
+        TextSize = 18,
+        TextTransparency = .35,
+        FontWeight = Enum.FontWeight.Medium,
+    })
+    
+    AboutTab:Space({ Columns = 4 }) 
+
 local ToggleTab = ElementsSection:Tab({
         Title = "Toggle",
         Icon = "solar:check-square-bold",
