@@ -1,4 +1,4 @@
-⁵local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+5⁵local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
     Title = "SNGB2K Hub",
@@ -189,21 +189,3 @@ local function tableToClipboard(luau_table, indent)
     return jsonString
 end
 
-local ToggleTab = ElementsSection:Tab({
-        Title = "Toggle",
-        Icon = "solar:check-square-bold",
-        IconColor = Green,
-        IconShape = "Square",
-        Border = true,
-    })
-
-ToggleTab:Toggle({
-        Title = "Toggle",
-    })
-    
-    ToggleTab:Space()
-    
-    ToggleTab:Toggle({
-        Title = "Toggle",
-        Desc = "Toggle example"
-    })
