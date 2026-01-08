@@ -201,37 +201,40 @@ local ToggleTab = ElementsSection:Tab({
         Border = true,
     })
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local function setSpeed(speed)
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hum = char:WaitForChild("Humanoid")
-    hum.WalkSpeed = speed
-end
-
--- Apply again on respawn
-player.CharacterAdded:Connect(function()
-    task.wait(0.2)
-    if _G.WS1500 then
-        setSpeed(1500)
-    else
-        setSpeed(16)
-    end
-end)
-
+-- TOGGLE (UP)
 local Toggle = Tab:Toggle({
-    Title = "1500 WalkSpeed",
-    Desc = "Toggle WalkSpeed 16 ⇄ 1500",
-    Icon = "zap",
+    Title = "High Jump",
+    Desc = "Toggle Jump UP",
+    Icon = "arrow-up",
     Type = "Checkbox",
     Value = false,
     Callback = function(state)
-        _G.WS1500 = state
+        _G.JUMP_UP = state
         if state then
-            setSpeed(1500)
+            setJump(150)
         else
-            setSpeed(16)
+            setJump(50)
         end
     end
 })
+
+-- LOGIC (DOWN)
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+function setJump(power)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+    hum.UseJumpPower = true
+    hum.JumpPower = power
+end
+
+-- Respawn support
+player.CharacterAdded:Connect(function()
+    task.wait(0.2)
+    if _G.JUMP_UP then
+        setJump(150)
+    else
+        setJump(50)
+    end
+end)
