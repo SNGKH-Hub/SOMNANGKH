@@ -189,40 +189,21 @@ local function tableToClipboard(luau_table, indent)
     return jsonString
 end
 
-local AboutTab = Window:Tab({
-        Title = "Main",
-        Desc = "Main", 
-        Icon = "solar:info-square-bold",
-        IconColor = Grey,
-        IconShape = "Square",
-        Border = true,
-    })
-
-local AboutSection = AboutTab:Section({
-        Title = "Movement",
-    })
-    
-    AboutSection:Image({
-        Image = "https://repository-images.githubusercontent.com/880118829/22c020eb-d1b1-4b34-ac4d-e33fd88db38d",
-        AspectRatio = "16:9",
-        Radius = 9,
-    })
-    
-    local Toggle = Tab:Toggle({
-    Title = "Toggle",
-    Desc = "Toggle Description",
-    Icon = "bird",
-    Type = "Checkbox",
-    Value = false, -- default value
-    Callback = function(state) 
-        print("Toggle Activated" .. tostring(state))
-    end
-})
-
 local ToggleTab = ElementsSection:Tab({
         Title = "Toggle",
         Icon = "solar:check-square-bold",
         IconColor = Green,
         IconShape = "Square",
         Border = true,
+    })
+
+ToggleTab:Toggle({
+        Title = "Toggle",
+    })
+    
+    ToggleTab:Space()
+    
+    ToggleTab:Toggle({
+        Title = "Toggle",
+        Desc = "Toggle example"
     })
