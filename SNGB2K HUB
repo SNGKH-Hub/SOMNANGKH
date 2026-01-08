@@ -1,8 +1,7 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "SNGB2K Hub",
+    Title = "My Super Hub",
     Icon = "door-open", -- lucide icon. optional
-    Author = "by SOMNANGB2K", -- optional
+    Author = "by .ftgs and .ftgs", -- optional
 })
-
