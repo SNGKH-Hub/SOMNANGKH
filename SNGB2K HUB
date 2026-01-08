@@ -6,4 +6,11 @@ local Window = WindUI:CreateWindow({
     Author = "by SOMNANGB2K", -- optional
 })
 
+local ToggleTab = ElementsSection:Tab({
+        Title = "Toggle",
+        Icon = "solar:check-square-bold",
+        IconColor = Green,
+        IconShape = "Square",
+        Border = true,
+    })
     
