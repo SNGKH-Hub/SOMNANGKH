@@ -193,11 +193,10 @@ local ElementsSection = Window:Section({
     Title = "Scripts",
 })
 
-local ToggleTab = ElementsSection:Tab({
-        Title = "Main",
+local Tab = Window:Tab({
+    Title = "Main",
         Icon = "solar:check-square-bold",
         IconColor = Green,
         IconShape = "Square",
         Border = true,
     })
-
