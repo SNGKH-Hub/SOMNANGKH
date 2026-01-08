@@ -210,12 +210,6 @@ local AboutSection = AboutTab:Section({
 
 AboutSection:Space({ Columns = 3 })
     
-    AboutSection:Section({
-        Title = "What is WindUI?",
-        TextSize = 24,
-        FontWeight = Enum.FontWeight.SemiBold,
-    })
-
     AboutSection:Space()
     
     local Toggle = Tab:Toggle({
