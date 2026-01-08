@@ -13,3 +13,7 @@ local ToggleTab = ElementsSection:Tab({
         IconShape = "Square",
         Border = true,
     })
+
+ToggleTab:Toggle({
+        Title = "Toggle",
+    })
