@@ -201,6 +201,10 @@ local ToggleTab = ElementsSection:Tab({
         Border = true,
     })
 
+ToggleTab:Toggle({
+        Title = "High jump",
+    })
+
 -- TOGGLE (UP)
 local Toggle = Tab:Toggle({
     Title = "High Jump",
