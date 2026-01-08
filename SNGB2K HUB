@@ -201,6 +201,13 @@ local ToggleTab = ElementsSection:Tab({
         Border = true,
     })
 
-ToggleTab:Toggle({
-        Title = "Toggle",
-    })
+local Toggle = Tab:Toggle({
+    Title = "Toggle",
+    Desc = "Toggle Description",
+    Icon = "bird",
+    Type = "Checkbox",
+    Value = false, -- default value
+    Callback = function(state) 
+        print("Toggle Activated" .. tostring(state))
+    end
+})
