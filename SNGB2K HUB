@@ -5,3 +5,11 @@ local Window = WindUI:CreateWindow({
     Icon = "door-open", -- lucide icon. optional
     Author = "by .ftgs and .ftgs", -- optional
 })
+
+local ToggleTab = ElementsSection:Tab({
+        Title = "Toggle",
+        Icon = "solar:check-square-bold",
+        IconColor = Green,
+        IconShape = "Square",
+        Border = true,
+    })
