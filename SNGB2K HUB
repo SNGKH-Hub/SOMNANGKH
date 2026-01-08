@@ -193,9 +193,9 @@ local ElementsSection = Window:Section({
     Title = "Scripts",
 })
 
-local OverviewTab = ElementsSection:Tab({
-        Title = "Main",
-        Icon = "solar:home-2-bold",
+local ToggleTab = ElementsSection:Tab({
+        Title = "Toggle",
+        Icon = "solar:check-square-bold",
         IconColor = Green,
         IconShape = "Square",
         Border = true,
