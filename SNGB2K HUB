@@ -201,15 +201,11 @@ local ToggleTab = ElementsSection:Tab({
         Border = true,
     })
 
-ToggleTab:Toggle({
-        Title = "jump",
-    })
-
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-local Slider = Tab:Slider({
-    Title = "WalkSpeed",
+ToggleTab:Toggle({
+        Title = "WalkSpeed",
     Desc = "Change your movement speed",
     Step = 1,
     Value = {
@@ -223,3 +219,5 @@ local Slider = Tab:Slider({
         humanoid.WalkSpeed = value
     end
 })
+
+    
