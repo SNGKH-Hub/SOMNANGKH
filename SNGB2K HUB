@@ -190,14 +190,48 @@ local function tableToClipboard(luau_table, indent)
 end
 
 local ElementsSection = Window:Section({
-    Title = "Elements",
+    Title = "Scripts",
 })
 
 local ToggleTab = ElementsSection:Tab({
-        Title = "Toggle",
+        Title = "Main",
         Icon = "solar:check-square-bold",
         IconColor = Green,
         IconShape = "Square",
         Border = true,
     })
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function setSpeed(speed)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+    hum.WalkSpeed = speed
+end
+
+-- Apply again on respawn
+player.CharacterAdded:Connect(function()
+    task.wait(0.2)
+    if _G.WS1500 then
+        setSpeed(1500)
+    else
+        setSpeed(16)
+    end
+end)
+
+local Toggle = Tab:Toggle({
+    Title = "1500 WalkSpeed",
+    Desc = "Toggle WalkSpeed 16 ⇄ 1500",
+    Icon = "zap",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        _G.WS1500 = state
+        if state then
+            setSpeed(1500)
+        else
+            setSpeed(16)
+        end
+    end
+})
