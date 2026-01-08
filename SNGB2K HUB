@@ -207,10 +207,6 @@ local AboutSection = AboutTab:Section({
         AspectRatio = "16:9",
         Radius = 9,
     })
-
-AboutSection:Space({ Columns = 3 })
-    
-    AboutSection:Space()
     
     local Toggle = Tab:Toggle({
     Title = "Toggle",
@@ -222,8 +218,6 @@ AboutSection:Space({ Columns = 3 })
         print("Toggle Activated" .. tostring(state))
     end
 })
-    
-    AboutTab:Space({ Columns = 4 }) 
 
 local ToggleTab = ElementsSection:Tab({
         Title = "Toggle",
