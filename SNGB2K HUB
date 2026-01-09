@@ -1,9 +1,9 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "My Super Hub",
+    Title = "SNB2K Hub",
     Icon = "door-open", -- lucide icon. optional
-    Author = "by .ftgs and .ftgs", -- optional
+    Author = "by SOMNANGB2K", -- optional
 }) 
 
 --createPopup()
@@ -189,35 +189,35 @@ local function tableToClipboard(luau_table, indent)
     return jsonString
 end
 
-local ElementsSection = Window:Section({
-    Title = "Scripts",
+local Tab = Window:Tab({
+    Title = "Main",
+    Icon = "box", -- optional
+    IconColor = Red,
+    IconShape = "Square",
+    Border = true,
+    Locked = false,
 })
 
-local ToggleTab = ElementsSection:Tab({
-        Title = "Toggle",
-        Icon = "solar:check-square-bold",
-        IconColor = Green,
-        IconShape = "Square",
-        Border = true,
-    })
-
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-
-SliderTab:Slider({
-        Title = "WalkSpeed",
-    Desc = "Change your movement speed",
+local Slider = Tab:Slider({
+    Title = "WalkSpeed",
+    Desc = "16 → 1500 WalkSpeed",
     Step = 1,
     Value = {
         Min = 16,
-        Max = 5000,
+        Max = 1500,
         Default = 16,
     },
     Callback = function(value)
-        local char = Player.Character or Player.CharacterAdded:Wait()
-        local humanoid = char:WaitForChild("Humanoid")
-        humanoid.WalkSpeed = value
+        SetWalkSpeed(value)
     end
 })
 
-    
+-- LOCAL PLAYER IS DOWN HERE
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+function SetWalkSpeed(value)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+    Humanoid.WalkSpeed = value
+end
