@@ -198,26 +198,34 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local Slider = Tab:Slider({
-    Title = "WalkSpeed",
-    Desc = "16 → 1500 WalkSpeed",
-    Step = 1,
-    Value = {
-        Min = 16,
-        Max = 1500,
-        Default = 16,
-    },
-    Callback = function(value)
-        SetWalkSpeed(value)
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local AutoAttack = false
+local Connection
+
+local Toggle = Tab:Toggle({
+    Title = "Auto Attack (M1)",
+    Desc = "Auto tap MouseButton1 (Melee / Sword / Gun / Fruit)",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        AutoAttack = state
+
+        if AutoAttack then
+            Connection = RunService.RenderStepped:Connect(function()
+                VirtualUser:Button1Down(Vector2.new(0,0))
+                task.wait(0.05)
+                VirtualUser:Button1Up(Vector2.new(0,0))
+            end)
+        else
+            if Connection then
+                Connection:Disconnect()
+                Connection = nil
+            end
+        end
     end
 })
-
--- LOCAL PLAYER IS DOWN HERE
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-
-function SetWalkSpeed(value)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Humanoid = Character:WaitForChild("Humanoid")
-    Humanoid.WalkSpeed = value
-end
