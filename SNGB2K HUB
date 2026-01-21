@@ -204,28 +204,77 @@ local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
 local AutoAttack = false
-local Connection
+local AttackRange = 60
 
-local Toggle = Tab:Toggle({
-    Title = "Auto Attack (M1)",
-    Desc = "Auto tap MouseButton1 (Melee / Sword / Gun / Fruit)",
+local AttackConnection
+local RangeConnection
+
+-- CHECK ENEMY IN RANGE
+local function EnemyInRange()
+    local char = Player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+            if v ~= char and v.Humanoid.Health > 0 then
+                local dist = (v.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if dist <= AttackRange then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+-- AUTO ATTACK TOGGLE
+Tab:Toggle({
+    Title = "Auto Attack (Smart M1)",
+    Desc = "Auto M1 only when enemy is near",
     Icon = "",
     Type = "Toggle",
     Value = false,
     Callback = function(state)
         AutoAttack = state
 
-        if AutoAttack then
-            Connection = RunService.RenderStepped:Connect(function()
-                VirtualUser:Button1Down(Vector2.new(0,0))
-                task.wait(0.05)
-                VirtualUser:Button1Up(Vector2.new(0,0))
+        if state then
+            AttackConnection = RunService.RenderStepped:Connect(function()
+                if EnemyInRange() then
+                    VirtualUser:Button1Down(Vector2.new(0,0))
+                    task.wait(0.04)
+                    VirtualUser:Button1Up(Vector2.new(0,0))
+                end
+            end)
+
+            RangeConnection = RunService.RenderStepped:Connect(function()
+                local char = Player.Character
+                if not char then return end
+
+                for _,tool in pairs(char:GetChildren()) do
+                    if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+                        tool.Handle.Size = Vector3.new(AttackRange, AttackRange, AttackRange)
+                        tool.Handle.Transparency = 1
+                        tool.Handle.CanCollide = false
+                        tool.Handle.Massless = true
+                    end
+                end
             end)
         else
-            if Connection then
-                Connection:Disconnect()
-                Connection = nil
-            end
+            if AttackConnection then AttackConnection:Disconnect() end
+            if RangeConnection then RangeConnection:Disconnect() end
         end
+    end
+})
+
+-- RANGE SLIDER
+Tab:Slider({
+    Title = "Attack Range",
+    Desc = "Change M1 hit range",
+    Min = 20,
+    Max = 100,
+    Default = 60,
+    Callback = function(value)
+        AttackRange = value
     end
 })
