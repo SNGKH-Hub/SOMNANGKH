@@ -4,6 +4,7 @@ local Window = WindUI:CreateWindow({
     Title = "SNB2K Hub",
     Icon = "door-open", -- lucide icon. optional
     Author = "by SOMNANGB2K", -- optional
+    HideSearchBar = false,
 }) 
 
 --createPopup()
@@ -199,82 +200,55 @@ local Tab = Window:Tab({
 })
 
 local Players = game:GetService("Players")
-local VirtualUser = game:GetService("VirtualUser")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Player = Players.LocalPlayer
-local AutoAttack = false
-local AttackRange = 60
+local LocalPlayer = Players.LocalPlayer
+local Remote = ReplicatedStorage:WaitForChild("Util"):WaitForChild("409")
 
-local AttackConnection
-local RangeConnection
+-- Toggle state
+local AutoM1Enabled = false
 
--- CHECK ENEMY IN RANGE
-local function EnemyInRange()
-    local char = Player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return false end
-
-    for _,v in pairs(workspace:GetChildren()) do
-        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
-            if v ~= char and v.Humanoid.Health > 0 then
-                local dist = (v.HumanoidRootPart.Position - hrp.Position).Magnitude
-                if dist <= AttackRange then
-                    return true
-                end
-            end
-        end
-    end
-    return false
-end
-
--- AUTO ATTACK TOGGLE
-Tab:Toggle({
-    Title = "Auto Attack (Smart M1)",
-    Desc = "Auto M1 only when enemy is near",
-    Icon = "",
-    Type = "Toggle",
+-- Create the toggle (as in your example)
+local AutoAttackToggle = Tab:Toggle({
+    Title = "Auto M1 Attack",
+    Desc = "Automatically spam M1 using 409 remote (Melee/Sword/Fruit/Gun only)",
+    Icon = "swords",  -- or any icon you prefer
+    Type = "Checkbox",
     Value = false,
     Callback = function(state)
-        AutoAttack = state
-
-        if state then
-            AttackConnection = RunService.RenderStepped:Connect(function()
-                if EnemyInRange() then
-                    VirtualUser:Button1Down(Vector2.new(0,0))
-                    task.wait(0.04)
-                    VirtualUser:Button1Up(Vector2.new(0,0))
-                end
-            end)
-
-            RangeConnection = RunService.RenderStepped:Connect(function()
-                local char = Player.Character
-                if not char then return end
-
-                for _,tool in pairs(char:GetChildren()) do
-                    if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
-                        tool.Handle.Size = Vector3.new(AttackRange, AttackRange, AttackRange)
-                        tool.Handle.Transparency = 1
-                        tool.Handle.CanCollide = false
-                        tool.Handle.Massless = true
-                    end
-                end
-            end)
-        else
-            if AttackConnection then AttackConnection:Disconnect() end
-            if RangeConnection then RangeConnection:Disconnect() end
-        end
+        AutoM1Enabled = state
+        print("Auto M1 " .. (state and "Enabled" or "Disabled"))
     end
 })
 
--- RANGE SLIDER
-Tab:Slider({
-    Title = "Attack Range",
-    Desc = "Change M1 hit range",
-    Min = 20,
-    Max = 100,
-    Default = 60,
-    Callback = function(value)
-        AttackRange = value
+-- The spam loop (runs on heartbeat for smoothness)
+RunService.Heartbeat:Connect(function()
+    if not AutoM1Enabled then return end
+    
+    local char = LocalPlayer.Character
+    if not char then return end
+    
+    local tool = char:FindFirstChildWhichIsA("Tool")
+    if not tool then return end
+    
+    -- Check tool name (case-insensitive) for your groups
+    local toolName = tool.Name:lower()
+    if not (toolName:find("melee") or toolName:find("sword") or toolName:find("blox fruit") or toolName:find("gun") or toolName:find("fruit")) then
+        return  -- skip if not matching category
     end
-})
+    
+    -- Reuse similar args (you may need to adjust these per-game)
+    local args = {
+        "[L&[ln`z}l{A`}",           -- keep as-is if it works
+        4292473223,
+        Instance.new("MeshPart"),   -- fresh dummy each time (some games check)
+        {},
+        [6] = "5290c8a6"
+    }
+    
+    -- Fire the remote (spam as fast as heartbeat ~60/s, but you can add delay if rate-limited)
+    pcall(function()
+        Remote:FireServer(unpack(args))
+    end)
+end)
