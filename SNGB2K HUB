@@ -199,56 +199,113 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-local Remote = ReplicatedStorage:WaitForChild("Util"):WaitForChild("409")
-
--- Toggle state
-local AutoM1Enabled = false
-
--- Create the toggle (as in your example)
-local AutoAttackToggle = Tab:Toggle({
-    Title = "Auto M1 Attack",
-    Desc = "Automatically spam M1 using 409 remote (Melee/Sword/Fruit/Gun only)",
-    Icon = "swords",  -- or any icon you prefer
-    Type = "Checkbox",
+local Toggle = Tab:Toggle({
+    Title = "Auto Fast Attack",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
     Value = false,
     Callback = function(state)
-        AutoM1Enabled = state
-        print("Auto M1 " .. (state and "Enabled" or "Disabled"))
+        getgenv().AutoM1Enabled = state
     end
 })
 
--- The spam loop (runs on heartbeat for smoothness)
-RunService.Heartbeat:Connect(function()
-    if not AutoM1Enabled then return end
-    
-    local char = LocalPlayer.Character
-    if not char then return end
-    
-    local tool = char:FindFirstChildWhichIsA("Tool")
-    if not tool then return end
-    
-    -- Check tool name (case-insensitive) for your groups
-    local toolName = tool.Name:lower()
-    if not (toolName:find("melee") or toolName:find("sword") or toolName:find("blox fruit") or toolName:find("gun") or toolName:find("fruit")) then
-        return  -- skip if not matching category
+-- === NEW: RANGE SLIDER (80 - 550 studs) ===
+local Slider = Tab:Slider({
+    Title = "M1 Attack Range",
+    Desc = "80 is safe - 550 is insane range (be careful)",
+    Step = 1,
+    Value = {
+        Min = 80,
+        Max = 550,
+        Default = 250,
+    },
+    Callback = function(value)
+        getgenv().AutoM1Range = value
     end
+})
+
+-- Auto attack loop (placed correctly outside toggle for clean start/stop)
+getgenv().AutoM1Enabled = false
+getgenv().AutoM1Range = 250   -- Default value (matches slider default)
+
+task.spawn(function()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
+    local RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
+    local RegisterHit = Net:WaitForChild("RE/RegisterHit")
     
-    -- Reuse similar args (you may need to adjust these per-game)
-    local args = {
-        "[L&[ln`z}l{A`}",           -- keep as-is if it works
-        4292473223,
-        Instance.new("MeshPart"),   -- fresh dummy each time (some games check)
-        {},
-        [6] = "5290c8a6"
-    }
+    local weaponGroups = {"Melee", "Sword", "Blox Fruit", "Gun"}
     
-    -- Fire the remote (spam as fast as heartbeat ~60/s, but you can add delay if rate-limited)
-    pcall(function()
-        Remote:FireServer(unpack(args))
-    end)
+    while task.wait(0.05) do -- Fast M1 spam (adjust if needed)
+        if not getgenv().AutoM1Enabled then continue end
+        
+        pcall(function()
+            local lp = game.Players.LocalPlayer
+            local char = lp.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+            
+            local root = char.HumanoidRootPart
+            local tool = char:FindFirstChildWhichIsA("Tool")
+            
+            -- Weapon group check (only attack with allowed tools)
+            local isValidWeapon = false
+            if tool then
+                local tip = tool.ToolTip or ""
+                for _, group in ipairs(weaponGroups) do
+                    if tip == group then
+                        isValidWeapon = true
+                        break
+                    end
+                end
+            end
+            if not isValidWeapon then return end
+            
+            -- Fire RegisterAttack first (required for combo validation in most updates)
+            RegisterAttack:FireServer(1e-9) -- tiny delay for max speed
+            
+            -- === PLAYERS ===
+            for _, plr in ipairs(game.Players:GetPlayers()) do
+                if plr == lp then continue end
+                local pchar = plr.Character
+                if not pchar or not pchar:FindFirstChild("Head") or not pchar:FindFirstChild("Humanoid") then continue end
+                if pchar.Humanoid.Health <= 0 then continue end
+                
+                local dist = (root.Position - pchar.HumanoidRootPart.Position).Magnitude
+                if dist <= getgenv().AutoM1Range then   -- ← CHANGED TO SLIDER VALUE
+                    local hitPart = pchar:FindFirstChild("Head") or pchar.HumanoidRootPart
+                    
+                    local args = {
+                        hitPart,      -- real target part (high-range works via remote)
+                        {},           -- hit data table
+                        nil,          -- optional
+                        "5290c8a6"    -- your provided ID (kept exactly as in your example)
+                    }
+                    RegisterHit:FireServer(unpack(args))
+                end
+            end
+            
+            -- === NPCS (Blox Fruits style - workspace.Enemies) ===
+            local enemiesFolder = workspace:FindFirstChild("Enemies")
+            if enemiesFolder then
+                for _, npc in ipairs(enemiesFolder:GetChildren()) do
+                    if not npc:FindFirstChild("Head") or not npc:FindFirstChild("Humanoid") then continue end
+                    if npc.Humanoid.Health <= 0 then continue end
+                    
+                    local dist = (root.Position - npc.HumanoidRootPart.Position).Magnitude
+                    if dist <= getgenv().AutoM1Range then   -- ← CHANGED TO SLIDER VALUE
+                        local hitPart = npc:FindFirstChild("Head") or npc.HumanoidRootPart
+                        
+                        local args = {
+                            hitPart,
+                            {},
+                            nil,
+                            "5290c8a6"
+                        }
+                        RegisterHit:FireServer(unpack(args))
+                    end
+                end
+            end
+        end)
+    end
 end)
