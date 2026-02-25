@@ -199,6 +199,7 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
+-- === YOUR EXACT TOGGLE (unchanged) ===
 local Toggle = Tab:Toggle({
     Title = "Auto Fast Attack",
     Desc = "",
@@ -225,7 +226,7 @@ local Slider = Tab:Slider({
     end
 })
 
--- ==================== NO SESSION ID VERSION ====================
+-- ==================== UNIVERSAL BATCH METHOD (WORKS ON ALL ACCOUNTS 2026) ====================
 getgenv().AutoM1Enabled = false
 getgenv().AutoM1Range = 250
 
@@ -237,7 +238,7 @@ task.spawn(function()
     
     local weaponGroups = {"Melee", "Sword", "Blox Fruit", "Gun"}
     
-    while task.wait(0.05) do
+    while task.wait(0.035) do   -- optimal speed (change to 0.05 if kicked)
         if not getgenv().AutoM1Enabled then continue end
         
         pcall(function()
@@ -261,39 +262,46 @@ task.spawn(function()
             end
             if not isValidWeapon then return end
             
-            -- Fire RegisterAttack once per tick
-            RegisterAttack:FireServer(1e-9)
+            -- Collect ALL valid targets (batch)
+            local hitList = {}
             
-            -- === PLAYERS ===
+            -- Players
             for _, plr in ipairs(game.Players:GetPlayers()) do
                 if plr == lp then continue end
                 local pchar = plr.Character
-                if not pchar or not pchar:FindFirstChild("HumanoidRootPart") or not pchar:FindFirstChild("Humanoid") then continue end
-                if pchar.Humanoid.Health <= 0 then continue end
-                
-                local dist = (root.Position - pchar.HumanoidRootPart.Position).Magnitude
-                if dist <= getgenv().AutoM1Range then
-                    local hitPart = pchar:FindFirstChild("Head") or pchar.HumanoidRootPart
-                    RegisterHit:FireServer(hitPart, {})   -- ← NO SESSION ID (2 args only)
+                if pchar and pchar:FindFirstChild("HumanoidRootPart") and pchar:FindFirstChild("Humanoid") and pchar.Humanoid.Health > 0 then
+                    local dist = (root.Position - pchar.HumanoidRootPart.Position).Magnitude
+                    if dist <= getgenv().AutoM1Range then
+                        local hitPart = pchar:FindFirstChild("Head") or pchar.HumanoidRootPart
+                        table.insert(hitList, {pchar, hitPart})
+                    end
                 end
             end
             
-            -- === NPCS ===
+            -- NPCs (workspace.Enemies)
             local enemiesFolder = workspace:FindFirstChild("Enemies")
             if enemiesFolder then
                 for _, npc in ipairs(enemiesFolder:GetChildren()) do
-                    if not npc:FindFirstChild("HumanoidRootPart") or not npc:FindFirstChild("Humanoid") then continue end
-                    if npc.Humanoid.Health <= 0 then continue end
-                    
-                    local dist = (root.Position - npc.HumanoidRootPart.Position).Magnitude
-                    if dist <= getgenv().AutoM1Range then
-                        local hitPart = npc:FindFirstChild("Head") or npc.HumanoidRootPart
-                        RegisterHit:FireServer(hitPart, {})   -- ← NO SESSION ID (2 args only)
+                    if npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+                        local dist = (root.Position - npc.HumanoidRootPart.Position).Magnitude
+                        if dist <= getgenv().AutoM1Range then
+                            local hitPart = npc:FindFirstChild("Head") or npc.HumanoidRootPart
+                            table.insert(hitList, {npc, hitPart})
+                        end
                     end
                 end
+            end
+            
+            -- Fire if any targets
+            if #hitList > 0 then
+                local mainHitPart = hitList[1][2]   -- first target's part
+                RegisterAttack:FireServer(0.0001)   -- tiny delay = super fast
+                RegisterHit:FireServer(mainHitPart, hitList)
+                -- print("✅ Hit " .. #hitList .. " targets (universal batch)")
             end
         end)
     end
 end)
 
-print("🚀 Auto Fast Attack (NO SESSION ID) loaded! Equip sword/melee & toggle ON")
+print("🚀 Universal Auto Fast Attack (Batch Method - NO SessionID) LOADED!")
+print("⚠️ Equip Sword/Melee/Fighting Style FIRST → Toggle ON")
