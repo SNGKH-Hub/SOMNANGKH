@@ -279,7 +279,7 @@ task.spawn(function()
                         hitPart,      -- real target part (high-range works via remote)
                         {},           -- hit data table
                         nil,          -- optional
-                        "5290c8a6"    -- your provided ID (kept exactly as in your example)
+                        "529122c7"    -- your provided ID (kept exactly as in your example)
                     }
                     RegisterHit:FireServer(unpack(args))
                 end
@@ -300,7 +300,7 @@ task.spawn(function()
                             hitPart,
                             {},
                             nil,
-                            "5290c8a6"
+                            "529122c7"
                         }
                         RegisterHit:FireServer(unpack(args))
                     end
