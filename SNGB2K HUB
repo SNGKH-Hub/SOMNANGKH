@@ -210,7 +210,7 @@ local Toggle = Tab:Toggle({
     end
 })
 
--- === NEW: RANGE SLIDER (80 - 550 studs) ===
+-- === YOUR EXACT SLIDER (unchanged) ===
 local Slider = Tab:Slider({
     Title = "M1 Attack Range",
     Desc = "80 is safe - 550 is insane range (be careful)",
@@ -225,9 +225,9 @@ local Slider = Tab:Slider({
     end
 })
 
--- Auto attack loop (placed correctly outside toggle for clean start/stop)
+-- ==================== NO SESSION ID VERSION ====================
 getgenv().AutoM1Enabled = false
-getgenv().AutoM1Range = 250   -- Default value (matches slider default)
+getgenv().AutoM1Range = 250
 
 task.spawn(function()
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -237,7 +237,7 @@ task.spawn(function()
     
     local weaponGroups = {"Melee", "Sword", "Blox Fruit", "Gun"}
     
-    while task.wait(0.05) do -- Fast M1 spam (adjust if needed)
+    while task.wait(0.05) do
         if not getgenv().AutoM1Enabled then continue end
         
         pcall(function()
@@ -248,7 +248,7 @@ task.spawn(function()
             local root = char.HumanoidRootPart
             local tool = char:FindFirstChildWhichIsA("Tool")
             
-            -- Weapon group check (only attack with allowed tools)
+            -- Weapon check
             local isValidWeapon = false
             if tool then
                 local tip = tool.ToolTip or ""
@@ -261,51 +261,39 @@ task.spawn(function()
             end
             if not isValidWeapon then return end
             
-            -- Fire RegisterAttack first (required for combo validation in most updates)
-            RegisterAttack:FireServer(1e-9) -- tiny delay for max speed
+            -- Fire RegisterAttack once per tick
+            RegisterAttack:FireServer(1e-9)
             
             -- === PLAYERS ===
             for _, plr in ipairs(game.Players:GetPlayers()) do
                 if plr == lp then continue end
                 local pchar = plr.Character
-                if not pchar or not pchar:FindFirstChild("Head") or not pchar:FindFirstChild("Humanoid") then continue end
+                if not pchar or not pchar:FindFirstChild("HumanoidRootPart") or not pchar:FindFirstChild("Humanoid") then continue end
                 if pchar.Humanoid.Health <= 0 then continue end
                 
                 local dist = (root.Position - pchar.HumanoidRootPart.Position).Magnitude
-                if dist <= getgenv().AutoM1Range then   -- ← CHANGED TO SLIDER VALUE
+                if dist <= getgenv().AutoM1Range then
                     local hitPart = pchar:FindFirstChild("Head") or pchar.HumanoidRootPart
-                    
-                    local args = {
-                        hitPart,      -- real target part (high-range works via remote)
-                        {},           -- hit data table
-                        nil,          -- optional
-                        "529122c7"    -- your provided ID (kept exactly as in your example)
-                    }
-                    RegisterHit:FireServer(unpack(args))
+                    RegisterHit:FireServer(hitPart, {})   -- ← NO SESSION ID (2 args only)
                 end
             end
             
-            -- === NPCS (Blox Fruits style - workspace.Enemies) ===
+            -- === NPCS ===
             local enemiesFolder = workspace:FindFirstChild("Enemies")
             if enemiesFolder then
                 for _, npc in ipairs(enemiesFolder:GetChildren()) do
-                    if not npc:FindFirstChild("Head") or not npc:FindFirstChild("Humanoid") then continue end
+                    if not npc:FindFirstChild("HumanoidRootPart") or not npc:FindFirstChild("Humanoid") then continue end
                     if npc.Humanoid.Health <= 0 then continue end
                     
                     local dist = (root.Position - npc.HumanoidRootPart.Position).Magnitude
-                    if dist <= getgenv().AutoM1Range then   -- ← CHANGED TO SLIDER VALUE
+                    if dist <= getgenv().AutoM1Range then
                         local hitPart = npc:FindFirstChild("Head") or npc.HumanoidRootPart
-                        
-                        local args = {
-                            hitPart,
-                            {},
-                            nil,
-                            "529122c7"
-                        }
-                        RegisterHit:FireServer(unpack(args))
+                        RegisterHit:FireServer(hitPart, {})   -- ← NO SESSION ID (2 args only)
                     end
                 end
             end
         end)
     end
 end)
+
+print("🚀 Auto Fast Attack (NO SESSION ID) loaded! Equip sword/melee & toggle ON")
