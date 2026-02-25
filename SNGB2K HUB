@@ -2,7 +2,7 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 
 local Window = WindUI:CreateWindow({
     Title = "SNB2K Hub",
-    Icon = "door-open", -- lucide icon. optional
+    Icon = "monitor", -- lucide icon. optional
     Author = "by SOMNANGB2K", -- optional
     HideSearchBar = false,
 }) 
@@ -192,8 +192,8 @@ end
 
 local Tab = Window:Tab({
     Title = "Main",
-    Icon = "box", -- optional
-    IconColor = Red,
+    Icon = "house", -- optional
+    IconColor = Blue,
     IconShape = "Square",
     Border = true,
     Locked = false,
@@ -201,7 +201,7 @@ local Tab = Window:Tab({
 
 -- === YOUR EXACT TOGGLE (unchanged) ===
 local Toggle = Tab:Toggle({
-    Title = "Auto Fast Attack",
+    Title = "Auto Fast Attack M1",
     Desc = "",
     Icon = "",
     Type = "Toggle",
