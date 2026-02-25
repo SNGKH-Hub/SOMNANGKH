@@ -193,7 +193,46 @@ end
 local Tab = Window:Tab({
     Title = "Main",
     Icon = "house", -- optional
-    IconColor = Blue,
+    IconColor = Purple,
+    IconShape = "Square",
+    Border = true,
+    Locked = false,
+})
+
+local Input = Tab:Input({
+    Title = "Orb Value",
+    Desc = "Enter number to eat orb",
+    Value = "",
+    InputIcon = "bird",
+    Type = "Input",
+    Placeholder = "Enter number...",
+    Callback = function(input)
+
+        local number = tonumber(input)
+
+        if number then
+            local orbValue = Instance.new("NumberValue")
+            orbValue.Value = number
+
+            local args = { orbValue }
+
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("Events")
+                :WaitForChild("Gameplay")
+                :WaitForChild("EatOrb")
+                :FireServer(unpack(args))
+
+            print("EatOrb fired with value:", number)
+        else
+            warn("Please enter a valid number")
+        end
+    end
+})
+
+local Tab = Window:Tab({
+    Title = "Settings",
+    Icon = "settings", -- optional
+    IconColor = Grey,
     IconShape = "Square",
     Border = true,
     Locked = false,
