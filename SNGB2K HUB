@@ -344,3 +344,128 @@ end)
 
 print("🚀 Universal Auto Fast Attack (Batch Method - NO SessionID) LOADED!")
 print("⚠️ Equip Sword/Melee/Fighting Style FIRST → Toggle ON")
+
+local Toggle = Tab:Toggle({
+    Title = "Auto Fast Attack v2",
+    Desc = "My account not working with auto attack M1 so i add this for me (current strongest M1)",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoM1Enabled = state
+    end
+})
+
+-- === RANGE SLIDER (80 - 550 studs) ===
+local Slider = Tab:Slider({
+    Title = "M1 Attack Range",
+    Desc = "80 is safe - 550 is insane range (be careful)",
+    Step = 1,
+    Value = {
+        Min = 80,
+        Max = 550,
+        Default = 250,
+    },
+    Callback = function(value)
+        getgenv().AutoM1Range = value
+    end
+})
+
+getgenv().AutoM1Enabled = false
+getgenv().AutoM1Range = 250
+
+task.spawn(function()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    
+    -- Original remotes (kept for safety + combo)
+    local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
+    local RegisterAttack = Net:WaitForChild("RE/RegisterAttack")
+    local RegisterHit = Net:WaitForChild("RE/RegisterHit")
+    
+    -- === NEW M1 ATTACK REMOTE (130) ===
+    local NewM1Remote = ReplicatedStorage:WaitForChild("Assets"):WaitForChild("130")
+    
+    local weaponGroups = {"Melee", "Sword", "Blox Fruit", "Gun"}
+    
+    while task.wait(0.025) do  -- Faster spam for new remote
+        if not getgenv().AutoM1Enabled then continue end
+        
+        pcall(function()
+            local lp = game.Players.LocalPlayer
+            local char = lp.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+            
+            local root = char.HumanoidRootPart
+            local tool = char:FindFirstChildWhichIsA("Tool")
+            
+            -- Weapon check
+            local isValidWeapon = false
+            if tool then
+                local tip = tool.ToolTip or ""
+                for _, group in ipairs(weaponGroups) do
+                    if tip == group or tip:find(group) then
+                        isValidWeapon = true
+                        break
+                    end
+                end
+            end
+            if not isValidWeapon then return end
+            
+            -- Original combo starter (kept)
+            RegisterAttack:FireServer(1e-9)
+            
+            -- === PLAYERS (NEW 130 + old RegisterHit) ===
+            for _, plr in ipairs(game.Players:GetPlayers()) do
+                if plr == lp then continue end
+                local pchar = plr.Character
+                if not pchar or not pchar:FindFirstChild("HumanoidRootPart") or not pchar:FindFirstChild("Humanoid") then continue end
+                if pchar.Humanoid.Health <= 0 then continue end
+                
+                local dist = (root.Position - pchar.HumanoidRootPart.Position).Magnitude
+                if dist <= getgenv().AutoM1Range then
+                    local hitPart = pchar:FindFirstChild("Head") or pchar.HumanoidRootPart
+                    
+                    -- Old method
+                    RegisterHit:FireServer(hitPart, {}, nil, "068b64cb")
+                    
+                    -- === NEW M1 ATTACK (130) ===
+                    local newArgs = {
+                        "PG-PgekqvgpJkv",
+                        18660374,
+                        hitPart,          -- Real target (not dummy Part)
+                        {},
+                        [6] = "52976811"
+                    }
+                    NewM1Remote:FireServer(unpack(newArgs))
+                end
+            end
+            
+            -- === NPCS (Blox Fruits style) ===
+            local enemiesFolder = workspace:FindFirstChild("Enemies")
+            if enemiesFolder then
+                for _, npc in ipairs(enemiesFolder:GetChildren()) do
+                    if not npc:FindFirstChild("HumanoidRootPart") or not npc:FindFirstChild("Humanoid") then continue end
+                    if npc.Humanoid.Health <= 0 then continue end
+                    
+                    local dist = (root.Position - npc.HumanoidRootPart.Position).Magnitude
+                    if dist <= getgenv().AutoM1Range then
+                        local hitPart = npc:FindFirstChild("Head") or npc.HumanoidRootPart
+                        
+                        -- Old method
+                        RegisterHit:FireServer(hitPart, {}, nil, "068b64cb")
+                        
+                        -- === NEW M1 ATTACK (130) ===
+                        local newArgs = {
+                            "PG-PgekqvgpJkv",
+                            18660374,
+                            hitPart,
+                            {},
+                            [6] = "52976811"
+                        }
+                        NewM1Remote:FireServer(unpack(newArgs))
+                    end
+                end
+            end
+        end)
+    end
+end)
