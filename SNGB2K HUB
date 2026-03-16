@@ -346,62 +346,57 @@ print("🚀 Universal Auto Fast Attack (Batch Method - NO SessionID) LOADED!")
 print("⚠️ Equip Sword/Melee/Fighting Style FIRST → Toggle ON")
 
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
--- Super fast tween settings (almost instant but still smooth)
-local fastTweenInfo = TweenInfo.new(
-    0.15,                       -- Very short duration = super fast
-    Enum.EasingStyle.Quad,      -- Smooth acceleration
-    Enum.EasingDirection.Out,   -- Feels snappy
+-- Super fast tween info (snappy movement)
+local tweenInfo = TweenInfo.new(
+    0.08,                    -- Very fast (0.05 or 0.03 for quicker snap feel)
+    Enum.EasingStyle.Quad,
+    Enum.EasingDirection.Out,
     0, false, 0
 )
 
--- Target CFrame/Position you want to tween TO (change these!)
-local targetCFrame = CFrame.new(0, 50, 0)          -- Example: move up 50 studs
--- OR local targetPosition = Vector3.new(100, 10, -50)
+-- CHANGE THIS to your desired ON position
+local targetPosition = Vector3.new(0, 80, 0)  -- Example: move up high
 
+-- The toggle (only this part)
 local Toggle = Tab:Toggle({
-    Title = "Toggle",
-    Desc = "Toggle Description",
-    Icon = "bird",
-    Type = "Checkbox",           -- or just omit if default is checkbox
+    Title = "Move Part 40",
+    Desc = "Super fast move Part '40' in Model '40'",
+    Icon = "",           -- or "bird", "arrow-up-down", etc.
+    Type = "Toggle",
     Value = false,
     Callback = function(state)
-        print("Toggle Activated: " .. tostring(state))
-        
-        -- Find the model named "40"
-        local model = workspace:FindFirstChild("40", true)  -- recursive search; adjust path if needed e.g. workspace.Folder["40"]
-        
-        if not model then
-            warn("Model named '40' not found!")
+        -- Find Model "40"
+        local model40 = Workspace:FindFirstChild("40", true)  -- recursive search
+        if not model40 or not model40:IsA("Model") then
+            warn("Model '40' not found!")
             return
         end
         
-        -- Option 1: Preferred - use Model.PrimaryPart (recommended)
-        local primary = model.PrimaryPart
-        if not primary then
-            -- Option 2: Fallback - look for a Part named "40" inside the model
-            primary = model:FindFirstChild("40")
-            if not primary or not primary:IsA("BasePart") then
-                warn("No PrimaryPart or Part named '40' found inside Model '40'!")
-                return
-            end
-            -- Optional: set it as PrimaryPart so future tweens are cleaner
-            -- model.PrimaryPart = primary
+        -- Find Part "40" inside it
+        local part40 = model40:FindFirstChild("40")
+        if not part40 or not part40:IsA("BasePart") then
+            warn("Part '40' not found in Model '40'!")
+            return
         end
         
+        -- Store original position once (using Attribute for persistence)
+        if not part40:GetAttribute("OriginalPos") then
+            part40:SetAttribute("OriginalPos", part40.Position)
+        end
+        local originalPos = part40:GetAttribute("OriginalPos")
+        
         if state then
-            -- ON → tween to target (super fast)
-            local goal = {CFrame = targetCFrame}          -- or {Position = targetPosition}
-            local tween = TweenService:Create(primary, fastTweenInfo, goal)
+            -- ON: Tween to target super fast
+            local tween = TweenService:Create(part40, tweenInfo, {Position = targetPosition})
             tween:Play()
-            print("Tweening Model '40' → target super fast!")
+            print("Part '40' → target")
         else
-            -- OFF → optional: tween back to original or hide/do nothing
-            -- Example: tween back (comment out if not wanted)
-            -- local originalCFrame = primary.CFrame -- you'd need to store this earlier
-            -- local tweenBack = TweenService:Create(primary, fastTweenInfo, {CFrame = originalCFrame})
-            -- tweenBack:Play()
-            print("Toggle OFF - no action / add return tween if desired")
+            -- OFF: Tween back super fast
+            local tween = TweenService:Create(part40, tweenInfo, {Position = originalPos})
+            tween:Play()
+            print("Part '40' ← original")
         end
     end
 })
