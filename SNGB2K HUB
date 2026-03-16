@@ -345,58 +345,64 @@ end)
 print("🚀 Universal Auto Fast Attack (Batch Method - NO SessionID) LOADED!")
 print("⚠️ Equip Sword/Melee/Fighting Style FIRST → Toggle ON")
 
+-- Services
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
--- Super fast tween info (snappy movement)
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")  -- Primary part to tween
+
+-- Super fast tween settings
 local tweenInfo = TweenInfo.new(
-    0.08,                    -- Very fast (0.05 or 0.03 for quicker snap feel)
+    0.08,                     -- Super fast snap (try 0.05 / 0.03 for quicker)
     Enum.EasingStyle.Quad,
     Enum.EasingDirection.Out,
     0, false, 0
 )
 
--- CHANGE THIS to your desired ON position
-local targetPosition = Vector3.new(0, 80, 0)  -- Example: move up high
+-- Store original position once (using attribute so it persists)
+if not HumanoidRootPart:GetAttribute("OriginalPos") then
+    HumanoidRootPart:SetAttribute("OriginalPos", HumanoidRootPart.Position)
+end
+local originalPos = HumanoidRootPart:GetAttribute("OriginalPos")
 
--- The toggle (only this part)
+-- The toggle
 local Toggle = Tab:Toggle({
-    Title = "Move Part 40",
-    Desc = "Super fast move Part '40' in Model '40'",
-    Icon = "",           -- or "bird", "arrow-up-down", etc.
-    Type = "Toggle",
+    Title = "Teleport to Model 40",
+    Desc = "Super fast move your character to Part '40' in Model '40'",
+    Icon = "move",           -- or "arrow-up-right", "locate", etc.
+    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         -- Find Model "40"
-        local model40 = Workspace:FindFirstChild("40", true)  -- recursive search
+        local model40 = Workspace:FindFirstChild("40", true)  -- deep/recursive search
         if not model40 or not model40:IsA("Model") then
             warn("Model '40' not found!")
             return
         end
         
-        -- Find Part "40" inside it
+        -- Find Part "40" inside the model
         local part40 = model40:FindFirstChild("40")
         if not part40 or not part40:IsA("BasePart") then
-            warn("Part '40' not found in Model '40'!")
+            warn("Part '40' not found inside Model '40'!")
             return
         end
         
-        -- Store original position once (using Attribute for persistence)
-        if not part40:GetAttribute("OriginalPos") then
-            part40:SetAttribute("OriginalPos", part40.Position)
-        end
-        local originalPos = part40:GetAttribute("OriginalPos")
+        -- Target = position of Part "40" (you can offset if needed, e.g. + Vector3.new(0,3,0))
+        local targetPos = part40.Position + Vector3.new(0, 3, 0)  -- slight offset above part to avoid sinking in
         
         if state then
-            -- ON: Tween to target super fast
-            local tween = TweenService:Create(part40, tweenInfo, {Position = targetPosition})
+            -- ON: Tween player to the part's position super fast
+            local tween = TweenService:Create(HumanoidRootPart, tweenInfo, {Position = targetPos})
             tween:Play()
-            print("Part '40' → target")
+            print("Player tweened to Part '40' @ " .. tostring(targetPos))
         else
-            -- OFF: Tween back super fast
-            local tween = TweenService:Create(part40, tweenInfo, {Position = originalPos})
+            -- OFF: Tween back to original position
+            local tween = TweenService:Create(HumanoidRootPart, tweenInfo, {Position = originalPos})
             tween:Play()
-            print("Part '40' ← original")
+            print("Player returned to original position")
         end
     end
 })
