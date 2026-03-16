@@ -199,32 +199,40 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local Input = Tab:Input({
-    Title = "Orb Value",
-    Desc = "Enter number to eat orb",
-    Value = "",
-    InputIcon = "bird",
-    Type = "Input",
-    Placeholder = "Enter number...",
-    Callback = function(input)
+local TweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
 
-        local number = tonumber(input)
+local Toggle = Tab:Toggle({
+    Title = "TweenMove To 40",
+    Desc = "Super Fast Tween Move",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        if state then
+            
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart")
 
-        if number then
-            local orbValue = Instance.new("NumberValue")
-            orbValue.Value = number
+            local model = workspace:FindFirstChild("40")
+            if model then
+                local part = model:FindFirstChild("40")
+                if part then
+                    
+                    local tweenInfo = TweenInfo.new(
+                        0.05, -- super fast speed
+                        Enum.EasingStyle.Linear,
+                        Enum.EasingDirection.Out
+                    )
 
-            local args = { orbValue }
+                    local tween = TweenService:Create(hrp, tweenInfo, {
+                        CFrame = part.CFrame
+                    })
 
-            game:GetService("ReplicatedStorage")
-                :WaitForChild("Events")
-                :WaitForChild("Gameplay")
-                :WaitForChild("EatOrb")
-                :FireServer(unpack(args))
+                    tween:Play()
+                end
+            end
 
-            print("EatOrb fired with value:", number)
-        else
-            warn("Please enter a valid number")
         end
     end
 })
@@ -344,65 +352,3 @@ end)
 
 print("🚀 Universal Auto Fast Attack (Batch Method - NO SessionID) LOADED!")
 print("⚠️ Equip Sword/Melee/Fighting Style FIRST → Toggle ON")
-
--- Services
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")  -- Primary part to tween
-
--- Super fast tween settings
-local tweenInfo = TweenInfo.new(
-    0.08,                     -- Super fast snap (try 0.05 / 0.03 for quicker)
-    Enum.EasingStyle.Quad,
-    Enum.EasingDirection.Out,
-    0, false, 0
-)
-
--- Store original position once (using attribute so it persists)
-if not HumanoidRootPart:GetAttribute("OriginalPos") then
-    HumanoidRootPart:SetAttribute("OriginalPos", HumanoidRootPart.Position)
-end
-local originalPos = HumanoidRootPart:GetAttribute("OriginalPos")
-
--- The toggle
-local Toggle = Tab:Toggle({
-    Title = "Teleport to Model 40",
-    Desc = "Super fast move your character to Part '40' in Model '40'",
-    Icon = "move",           -- or "arrow-up-right", "locate", etc.
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(state)
-        -- Find Model "40"
-        local model40 = Workspace:FindFirstChild("40", true)  -- deep/recursive search
-        if not model40 or not model40:IsA("Model") then
-            warn("Model '40' not found!")
-            return
-        end
-        
-        -- Find Part "40" inside the model
-        local part40 = model40:FindFirstChild("40")
-        if not part40 or not part40:IsA("BasePart") then
-            warn("Part '40' not found inside Model '40'!")
-            return
-        end
-        
-        -- Target = position of Part "40" (you can offset if needed, e.g. + Vector3.new(0,3,0))
-        local targetPos = part40.Position + Vector3.new(0, 3, 0)  -- slight offset above part to avoid sinking in
-        
-        if state then
-            -- ON: Tween player to the part's position super fast
-            local tween = TweenService:Create(HumanoidRootPart, tweenInfo, {Position = targetPos})
-            tween:Play()
-            print("Player tweened to Part '40' @ " .. tostring(targetPos))
-        else
-            -- OFF: Tween back to original position
-            local tween = TweenService:Create(HumanoidRootPart, tweenInfo, {Position = originalPos})
-            tween:Play()
-            print("Player returned to original position")
-        end
-    end
-})
