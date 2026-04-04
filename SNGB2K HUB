@@ -199,41 +199,61 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local TweenService = game:GetService("TweenService")
-local player = game.Players.LocalPlayer
+local addValue = 0
 
-local Toggle = Tab:Toggle({
-    Title = "TweenMove To 40",
-    Desc = "Super Fast Tween Move",
-    Icon = "",
-    Type = "Toggle",
-    Value = false,
-    Callback = function(state)
-        if state then
-            
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character:WaitForChild("HumanoidRootPart")
+local function AddCoinsOrWins()
+    local args = {
+        addValue,
+        "Coins" -- change to "Wins" if you want
+    }
 
-            local model = workspace:FindFirstChild("40")
-            if model then
-                local part = model:FindFirstChild("40")
-                if part then
-                    
-                    local tweenInfo = TweenInfo.new(
-                        0.05, -- super fast speed
-                        Enum.EasingStyle.Linear,
-                        Enum.EasingDirection.Out
-                    )
+    game:GetService("ReplicatedStorage")
+        :WaitForChild("Remote")
+        :WaitForChild("Event")
+        :WaitForChild("Race")
+        :WaitForChild("AddCoinsOrWins")
+        :FireServer(unpack(args))
+end
 
-                    local tween = TweenService:Create(hrp, tweenInfo, {
-                        CFrame = part.CFrame
-                    })
+local Input = Tab:Input({
+    Title = "Auto Add Coins/Wins",
+    Desc = "Enter amount and auto send",
+    Value = "0",
+    InputIcon = "",
+    Type = "Input",
+    Placeholder = "Enter number...",
+    Callback = function(input) 
+        addValue = tonumber(input) or 0
+        print("Auto adding: " .. addValue)
+        
+        -- Auto fire immediately
+        AddCoinsOrWins()
+    end
+})
 
-                    tween:Play()
-                end
-            end
+local addValue = 0 -- store value
 
-        end
+local Input = Tab:Input({
+    Title = "Input",
+    Desc = "Enter amount",
+    Value = "",
+    InputIcon = "",
+    Type = "Input",
+    Placeholder = "Enter number...",
+    Callback = function(input)
+        addValue = tonumber(input) or 0
+
+        local args = {
+            addValue,
+            "Wins" -- change to "Wins" if needed
+        }
+
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remote")
+            :WaitForChild("Event")
+            :WaitForChild("Race")
+            :WaitForChild("AddCoinsOrWins")
+            :FireServer(unpack(args))
     end
 })
 
