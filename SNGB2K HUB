@@ -200,19 +200,33 @@ local Tab = Window:Tab({
 })
 
 local player = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
 local running = false
+local buttonsFolder = workspace:WaitForChild("Buttons")
 
 local function getHRP()
     local char = player.Character or player.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
 end
 
-local buttonsFolder = workspace:WaitForChild("Buttons")
+local function tweenTo(targetCFrame)
+    local hrp = getHRP()
+
+    local tween = TweenService:Create(
+        hrp,
+        TweenInfo.new(0.3, Enum.EasingStyle.Linear),
+        {CFrame = targetCFrame}
+    )
+
+    tween:Play()
+    tween.Completed:Wait()
+end
 
 local Toggle = Tab:Toggle({
-    Title = "Auto TP Button16",
-    Desc = "TP to Button16 in Buttons folder",
-    Icon = "",
+    Title = "Tween To Button16",
+    Desc = "Smooth move to Button16",
+    Icon = "", -- ✅ removed icon
     Type = "Toggle",
     Value = false,
     Callback = function(state)
@@ -221,16 +235,12 @@ local Toggle = Tab:Toggle({
         if running then
             task.spawn(function()
                 while running do
-                    local hrp = getHRP()
-
                     for _, v in ipairs(buttonsFolder:GetDescendants()) do
                         if v:IsA("BasePart") and v.Name == "Button16" then
-                            player.Character:PivotTo(v.CFrame * CFrame.new(0,5,0))
-                            task.wait(1)
+                            tweenTo(v.CFrame * CFrame.new(0,5,0))
+                            task.wait(0.2)
                         end
                     end
-
-                    task.wait(0.5)
                 end
             end)
         end
