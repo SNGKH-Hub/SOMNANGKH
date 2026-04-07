@@ -200,15 +200,20 @@ local Tab = Window:Tab({
 })
 
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-
 local running = false
+
+local function getHRP()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
+local buttonsFolder = workspace:WaitForChild("Buttons")
 
 local Toggle = Tab:Toggle({
     Title = "Auto TP Button16",
-    Desc = "Teleport every second to Button16 parts",
-    Icon = "bird",
-    Type = "Checkbox",
+    Desc = "TP to Button16 in Buttons folder",
+    Icon = "",
+    Type = "Toggle",
     Value = false,
     Callback = function(state)
         running = state
@@ -216,18 +221,16 @@ local Toggle = Tab:Toggle({
         if running then
             task.spawn(function()
                 while running do
-                    character = player.Character or player.CharacterAdded:Wait()
-                    local hrp = character:WaitForChild("HumanoidRootPart")
+                    local hrp = getHRP()
 
-                    -- Loop through all parts named Button16
-                    for _, v in pairs(workspace:GetDescendants()) do
+                    for _, v in ipairs(buttonsFolder:GetDescendants()) do
                         if v:IsA("BasePart") and v.Name == "Button16" then
-                            hrp.CFrame = v.CFrame + Vector3.new(0, 3, 0)
-                            task.wait(1) -- wait 1 second before next TP
+                            player.Character:PivotTo(v.CFrame * CFrame.new(0,5,0))
+                            task.wait(1)
                         end
                     end
 
-                    task.wait(1)
+                    task.wait(0.5)
                 end
             end)
         end
