@@ -199,59 +199,29 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
+local addValue = 0
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local root = character:WaitForChild("HumanoidRootPart")
+local Input = Tab:Input({
+    Title = "Put",
+    Desc = "Enter reward value",
+    Value = "",
+    InputIcon = "",
+    Type = "Input",
+    Placeholder = "Enter number...",
+    Callback = function(input)
+        addValue = tonumber(input) or 0
+        print("Value set to: " .. addValue)
 
-local running = false
+        local args = {
+            addValue
+        }
 
-local Toggle = Tab:Toggle({
-    Title = "Auto Tween Button16",
-    Desc = "",
-    Icon = "",
-    Type = "Toggle",
-    Value = false,
-
-    Callback = function(state)
-        running = state
-
-        if running then
-            task.spawn(function()
-                while running do
-                    local folder = workspace:FindFirstChild("Buttons")
-
-                    if folder then
-                        for _, model in ipairs(folder:GetChildren()) do
-                            if model:IsA("Model") then
-                                
-                                local targetPart = model:FindFirstChild("Button16", true)
-
-                                if targetPart and targetPart:IsA("BasePart") then
-                                    
-                                    local tween = TweenService:Create(
-                                        root,
-                                        TweenInfo.new(0.3, Enum.EasingStyle.Linear),
-                                        {CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)}
-                                    )
-
-                                    tween:Play()
-                                    tween.Completed:Wait()
-
-                                    task.wait(1) -- per second
-                                    
-                                    if not running then break end
-                                end
-                            end
-                        end
-                    end
-
-                    task.wait(1)
-                end
-            end)
-        end
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remote")
+            :WaitForChild("Event")
+            :WaitForChild("Eco")
+            :WaitForChild("[C-S]FlightReward")
+            :FireServer(unpack(args))
     end
 })
 
