@@ -199,49 +199,45 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local player = game.Players.LocalPlayer
-local running = false
-
 local Toggle = Tab:Toggle({
-    Title = "Auto Wins",
-    Desc = "Fixed TP loop",
+    Title = "Auto Wins (SUPER FAST)",
+    Desc = "Ultra Speed",
     Icon = "",
     Type = "Toggle",
     Value = false,
+
     Callback = function(state)
-        running = state
+        _G.TP_Loop = state
 
-        if running then
+        if state then
             task.spawn(function()
-                while running do
-                    local char = player.Character
-                    if not char then 
-                        player.CharacterAdded:Wait()
-                        continue
-                    end
+                local player = game.Players.LocalPlayer
 
+                while _G.TP_Loop do
+                    local char = player.Character or player.CharacterAdded:Wait()
                     local hrp = char:FindFirstChild("HumanoidRootPart")
-                    if not hrp then continue end
 
-                    -- STEP 1: Find Button16 properly
-                    local folder = workspace:FindFirstChild("Buttons")
-                    if not folder then 
-                        warn("Buttons folder not found")
-                        task.wait(1)
-                        continue
+                    local stage = workspace:FindFirstChild("Buttons")
+                        and workspace.Buttons:FindFirstChild("Button16")
+
+                    if hrp and stage then
+                        -- ⚡ STEP 1: CENTER (Model or Part)
+                        hrp.CFrame = (stage.PrimaryPart and stage.PrimaryPart.CFrame or stage:GetPivot()) + Vector3.new(0,5,0)
+
+                        -- ⚡ STEP 2: HEAD (if exists)
+                        local head = stage:FindFirstChild("Head")
+                        if head then
+                            hrp.CFrame = head.CFrame + Vector3.new(0,3,0)
+                        end
+
+                        -- ⚡ STEP 3: PART (important trigger)
+                        local part = stage:FindFirstChild("Part")
+                        if part then
+                            hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+                        end
                     end
 
-                    local button = folder:FindFirstChild("Button16")
-                    if not button then 
-                        warn("Button16 not found")
-                        task.wait(1)
-                        continue
-                    end
-
-                    -- TELEPORT
-                    hrp.CFrame = button.CFrame + Vector3.new(0, 3, 0)
-
-                    task.wait(1)
+                    task.wait(0.05) -- 🔥 same ultra speed
                 end
             end)
         end
