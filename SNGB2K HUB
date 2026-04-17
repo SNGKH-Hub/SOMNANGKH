@@ -204,27 +204,44 @@ local running = false
 
 local Toggle = Tab:Toggle({
     Title = "Auto Wins",
-    Desc = "Teleport every second (super fast)",
+    Desc = "Fixed TP loop",
     Icon = "",
     Type = "Toggle",
     Value = false,
     Callback = function(state)
         running = state
-        
+
         if running then
             task.spawn(function()
                 while running do
-                    local char = player.Character or player.CharacterAdded:Wait()
-                    local hrp = char:WaitForChild("HumanoidRootPart")
-
-                    local button = workspace:WaitForChild("Buttons"):FindFirstChild("Button16")
-                    
-                    if button and button:IsA("BasePart") then
-                        -- super fast teleport
-                        hrp.CFrame = button.CFrame + Vector3.new(0, 3, 0)
+                    local char = player.Character
+                    if not char then 
+                        player.CharacterAdded:Wait()
+                        continue
                     end
 
-                    task.wait(1) -- per second loop
+                    local hrp = char:FindFirstChild("HumanoidRootPart")
+                    if not hrp then continue end
+
+                    -- STEP 1: Find Button16 properly
+                    local folder = workspace:FindFirstChild("Buttons")
+                    if not folder then 
+                        warn("Buttons folder not found")
+                        task.wait(1)
+                        continue
+                    end
+
+                    local button = folder:FindFirstChild("Button16")
+                    if not button then 
+                        warn("Button16 not found")
+                        task.wait(1)
+                        continue
+                    end
+
+                    -- TELEPORT
+                    hrp.CFrame = button.CFrame + Vector3.new(0, 3, 0)
+
+                    task.wait(1)
                 end
             end)
         end
