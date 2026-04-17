@@ -199,29 +199,35 @@ local Tab = Window:Tab({
     Locked = false,
 })
 
-local addValue = 0
+local player = game.Players.LocalPlayer
+local running = false
 
-local Input = Tab:Input({
-    Title = "Put",
-    Desc = "Enter reward value",
-    Value = "",
-    InputIcon = "",
-    Type = "Input",
-    Placeholder = "Enter number...",
-    Callback = function(input)
-        addValue = tonumber(input) or 0
-        print("Value set to: " .. addValue)
+local Toggle = Tab:Toggle({
+    Title = "Auto Wins",
+    Desc = "Teleport every second (super fast)",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        running = state
+        
+        if running then
+            task.spawn(function()
+                while running do
+                    local char = player.Character or player.CharacterAdded:Wait()
+                    local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local args = {
-            addValue
-        }
+                    local button = workspace:WaitForChild("Buttons"):FindFirstChild("Button16")
+                    
+                    if button and button:IsA("BasePart") then
+                        -- super fast teleport
+                        hrp.CFrame = button.CFrame + Vector3.new(0, 3, 0)
+                    end
 
-        game:GetService("ReplicatedStorage")
-            :WaitForChild("Remote")
-            :WaitForChild("Event")
-            :WaitForChild("Eco")
-            :WaitForChild("[C-S]FlightReward")
-            :FireServer(unpack(args))
+                    task.wait(1) -- per second loop
+                end
+            end)
+        end
     end
 })
 
