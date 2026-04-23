@@ -4,7 +4,7 @@ local Window = Library:CreateWindow({
     Title = "SB2K Hub",
     Desc = "",
     Author = " By SOMNANGB2K",
-    WindowColor = "Red",
+    WindowColor = "Green",
 })
 
 local Tab = Window:Tab({
@@ -20,7 +20,6 @@ local Toggle = Section:Toggle({
     Title = "Auto Wins (SUPER FAST)",
     Desc = "Ultra Speed",
     Value = false,
-
     Callback = function(state)
         _G.TP_Loop = state
 
